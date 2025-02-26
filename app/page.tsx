@@ -36,13 +36,11 @@ export default function Home() {
     }
   }
 
-  const handleCreateClick = () => {
-    router.push('/new')
-  }
+  
 
   return (
     <div className="flex flex-col h-screen">
-      <Header onCreateClick={handleCreateClick} />
+      <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar 
           topics={filteredTopics} 
