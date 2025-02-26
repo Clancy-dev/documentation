@@ -38,6 +38,7 @@ export default function CodeEditor({ code: initialCode, language, onChange, read
 
   return (
     <div className="border rounded-md overflow-hidden">
+
       <Editor
         value={code}
         onValueChange={handleChange}
