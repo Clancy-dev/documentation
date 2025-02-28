@@ -37,7 +37,7 @@ export default function CodeEditor({ code: initialCode, language, onChange, read
   }
 
   return (
-    <div className="border rounded-md overflow-hidden">
+    <div className="border rounded-md overflow-hidden bg-black text-blue-400">
 
   
       <Editor

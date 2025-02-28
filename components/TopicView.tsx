@@ -121,8 +121,7 @@ export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
                       language={section.language}
                       readOnly
                     />
-              
-                    
+                             
                   </div>
                 </TabsContent>
               ))}
