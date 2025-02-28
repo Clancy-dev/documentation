@@ -12,11 +12,14 @@ export async function createNewTopic(data:TopicFormData){
             explanation: data.explanation,
             slug: data.slug,
             image: data.image,
+            explanationTab:data.explanationTab,
+            previewTab:data.previewTab,
             codeSections: {
               create: data.codeSections.map((section) => ({
                 title: section.title,
                 location: section.location,
                 code: section.code,
+                language:section.language
               })),
             },
           },
@@ -36,4 +39,21 @@ export async function createNewTopic(data:TopicFormData){
 }
 
 
-
+export async function fetchTopics(){
+    try {
+      const fetchedTopics = await db.topic.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          codeSections: true, // Include related codeSections
+        },
+      });
+  
+      return fetchedTopics;
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw new Error("Failed to fetch topics");
+      
+    }
+  }

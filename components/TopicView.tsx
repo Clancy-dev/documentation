@@ -6,17 +6,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import CodeEditor from '@/components/CodeEditor'
 import { Copy, Check, Folder, File } from 'lucide-react'
-import { Topic } from '@/app/types/Topic'
+import { CodeSection, Topic } from '@prisma/client'
+import { StdioNull } from 'child_process'
 
 
 interface TopicViewProps {
-  topic: Topic
+  topic: Topic & { codeSections: CodeSection[] } 
   onEdit: (topic: Topic) => void
-  onDelete: (topicId: number) => void
+  onDelete: (topicId: string) => void
 }
 
 export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
-  const [activeTab, setActiveTab] = useState('preview')
+  const [activeTab, setActiveTab] = useState('previewTab')
   const [activeCodeSection, setActiveCodeSection] = useState(topic.codeSections[0]?.title || '')
   const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({})
 
@@ -61,25 +62,25 @@ export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          {topic.preview && <TabsTrigger value="preview">Preview</TabsTrigger>}
-          {topic.explanation && <TabsTrigger value="explanation">Explanation</TabsTrigger>}
+          {topic.previewTab && <TabsTrigger value="previewTab">Preview</TabsTrigger>}
+          {topic.explanationTab && <TabsTrigger value="explanationTab">Explanation</TabsTrigger>}
           {topic.codeSections.length > 0 && <TabsTrigger value="code">Code</TabsTrigger>}
         </TabsList>
-        {topic.preview && (
-          <TabsContent value="preview">
+        {topic.previewTab && (
+          <TabsContent value="previewTab">
             <div className="aspect-video relative">
               <Image 
-                src={topic.preview || "/placeholder.svg"}
+                src={topic.image || "/placeholder.svg"}
                 alt={topic.title}
                 layout="fill"
-                objectFit="cover"
+                objectFit="contain"
                 className="rounded-lg"
               />
             </div>
           </TabsContent>
         )}
-        {topic.explanation && (
-          <TabsContent value="explanation">
+        {topic.explanationTab && (
+          <TabsContent value="explanationTab">
             <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: topic.explanation }} />
           </TabsContent>
         )}

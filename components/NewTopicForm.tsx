@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useForm, useFieldArray, Controller } from "react-hook-form"
 import { useRouter } from "next/navigation"
@@ -16,19 +14,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UploadButton } from "@/utils/uploadthing"
 import toast from "react-hot-toast"
 import FilePathInput from "./FileInputPath"
+import { revalidatePath } from "next/cache"
 import { createNewTopic } from "@/actions/Topic"
 
 export type TopicFormData = {
   title: string
   explanation: string
-  slug:string
-  image:string
+  slug: string
+  explanationTab:string
+  previewTab:string
+  image: string
   codeSections: {
     title: string
     location: string
     code: string
+    language: "react" | "css"
   }[]
-
 }
 
 const QuillEditor = ({ onChange, value }: { onChange: (value: string) => void; value: string }) => {
@@ -67,6 +68,7 @@ export default function NewTopicForm() {
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("/empty.png")
+  const [selectedSections, setSelectedSections] = useState<string[]>(["all"])
   const router = useRouter()
 
   const {
@@ -76,7 +78,12 @@ export default function NewTopicForm() {
     formState: { errors },
   } = useForm<TopicFormData>({
     defaultValues: {
-      codeSections: [{ title: "", location: "", code: "" }],
+      codeSections: [{ title: "", location: "", code: "", language: "react" }],
+      explanationTab:"explanationTab",
+      previewTab:"previewTab"
+     
+
+
     },
   })
 
@@ -85,12 +92,59 @@ export default function NewTopicForm() {
     name: "codeSections",
   })
 
-  const steps = ["Basic Info", "Code Sections", "Preview Image"]
+  const steps = ["Form Options", "Basic Info", "Code Sections", "Preview Image"]
+
+  // Simplified section change handler
+  const handleSectionChange = (section: string) => {
+    if (section === "all") {
+      // Toggle "all" selection
+      if (selectedSections.includes("all")) {
+        setSelectedSections([])
+      } else {
+        setSelectedSections(["all"])
+      }
+      return
+    }
+
+    // If "all" is currently selected, deselect it
+    const withoutAll = selectedSections.filter((s) => s !== "all")
+
+    // Toggle the selected section
+    if (withoutAll.includes(section)) {
+      setSelectedSections(withoutAll.filter((s) => s !== section))
+    } else {
+      setSelectedSections([...withoutAll, section])
+    }
+  }
+
+  const getVisibleSteps = () => {
+    if (selectedSections.includes("all")) {
+      return steps
+    }
+
+    const visibleSteps = ["Form Options"]
+    if (selectedSections.includes("explanation")) visibleSteps.push("Basic Info")
+    if (selectedSections.includes("codeSections")) visibleSteps.push("Code Sections")
+ 
+
+    return visibleSteps
+  }
 
   const onSubmit = async (data: TopicFormData) => {
-    data.slug = data.title.toLowerCase().split(" ").join("-");
-    data.image = imageUrl;
-    
+    data.slug = data.title.toLowerCase().split(" ").join("-")
+    data.image = imageUrl
+
+    // If specific sections are not selected, provide default values
+    if (!selectedSections.includes("explanation") && !selectedSections.includes("all")) {
+      data.title = data.title || "Untitled"
+      data.explanation = data.explanation || ""
+    }
+
+    if (!selectedSections.includes("codeSections") && !selectedSections.includes("all")) {
+      data.codeSections = []
+    }
+
+ 
 
     try {
       setLoading(true)
@@ -99,6 +153,7 @@ export default function NewTopicForm() {
       console.log(data)
       toast.success("Topic created successfully.")
       router.push("/") // Redirect to home page
+      revalidatePath("/")
     } catch (error) {
       toast.error("Failed to create the topic.")
       console.error(error)
@@ -107,38 +162,119 @@ export default function NewTopicForm() {
     }
   }
 
+  // Create checkbox option component for better organization
+  const CheckboxOption = ({
+    id,
+    label,
+    checked,
+    onChange,
+    disabled = false,
+  }: {
+    id: string
+    label: string
+    checked: boolean
+    onChange: () => void
+    disabled?: boolean
+  }) => {
+    return (
+      <div className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded cursor-pointer" onClick={onChange}>
+        <input
+          type="checkbox"
+          id={id}
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          className="h-5 w-5 rounded border-gray-300 cursor-pointer"
+        />
+        <Label htmlFor={id} className="cursor-pointer select-none">
+          {label}
+        </Label>
+      </div>
+    )
+  }
+
+  // Helper to determine if we should show the submit button
+  const shouldShowSubmit = () => {
+    // If "all" is selected, only show submit on the last step
+    if (selectedSections.includes("all")) {
+      return activeStep === getVisibleSteps().length - 1
+    }
+
+    // For individual sections, show submit button after Form Options
+    return activeStep > 0
+  }
+
+  // Simplified helper to check if we can submit
+  const canSubmit = () => {
+    // Can't submit on the first step (Form Options)
+    if (activeStep === 0) return false
+
+    // Can submit if we have any sections selected
+    return selectedSections.length > 0
+  }
+
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-xl bg-white">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center mb-2">New Topic</CardTitle>
       </CardHeader>
       <CardContent>
-        <form
-          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-            const target = e.nativeEvent.target as HTMLFormElement
-            const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLElement | null
-
-            if (!submitter || submitter.getAttribute("type") !== "submit") {
-              e.preventDefault()
-            }
-          }}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Tabs
-            defaultValue={steps[activeStep]}
-            value={steps[activeStep]}
-            onValueChange={(value) => setActiveStep(steps.indexOf(value))}
+            defaultValue={getVisibleSteps()[activeStep]}
+            value={getVisibleSteps()[activeStep]}
+            onValueChange={(value) => setActiveStep(getVisibleSteps().indexOf(value))}
           >
-            <TabsList className="grid w-full grid-cols-3">
-              {steps.map((step, index) => (
+            <TabsList
+              className="grid w-full"
+              style={{ gridTemplateColumns: `repeat(${getVisibleSteps().length}, 1fr)` }}
+            >
+              {getVisibleSteps().map((step, index) => (
                 <TabsTrigger key={step} value={step} disabled={index > activeStep}>
                   Step {index + 1}: {step}
                 </TabsTrigger>
               ))}
             </TabsList>
 
+            <TabsContent value="Form Options">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Select form sections to complete:</h3>
+                <div className="space-y-1 border rounded-md p-2">
+                  <CheckboxOption
+                    id="all"
+                    label="All sections (complete full form)"
+                    checked={selectedSections.includes("all")}
+                    onChange={() => handleSectionChange("all")}
+                  />
+
+                  <CheckboxOption
+                    id="explanation"
+                    label="Basic Info"
+                    checked={selectedSections.includes("explanation")}
+                    onChange={() => handleSectionChange("explanation")}
+                    disabled={selectedSections.includes("all")}
+                  />
+
+                  <CheckboxOption
+                    id="codeSections"
+                    label="Code Sections"
+                    checked={selectedSections.includes("codeSections")}
+                    onChange={() => handleSectionChange("codeSections")}
+                    disabled={selectedSections.includes("all")}
+                  />
+
+                  
+                </div>
+              </div>
+            </TabsContent>
+
             <TabsContent value="Basic Info">
               <div className="space-y-4">
+                {/* Hidden input */}
+                <Input
+                   type="hidden"
+                   {...register("explanationTab")}
+                  />
                 <div>
                   <Label htmlFor="title">Title</Label>
                   <Input id="title" {...register("title", { required: "Title is required" })} />
@@ -150,7 +286,7 @@ export default function NewTopicForm() {
                     name="explanation"
                     control={control}
                     rules={{ required: "Explanation is required" }}
-                    render={({ field }) => <QuillEditor onChange={field.onChange} value={field.value} />}
+                    render={({ field }) => <QuillEditor onChange={field.onChange} value={field.value || ""} />}
                   />
                   {errors.explanation && <p className="text-red-500">{errors.explanation.message}</p>}
                 </div>
@@ -172,30 +308,44 @@ export default function NewTopicForm() {
                       render={({ field }) => <FilePathInput value={field.value} onChange={field.onChange} />}
                     />
 
+                    <div className="mt-2">
+                      <Label htmlFor={`codeSections.${index}.language`}>Language</Label>
+                      <select
+                        {...register(`codeSections.${index}.language` as const)}
+                        className="w-full p-2 border rounded"
+                      >
+                        <option value="react">React</option>
+                        <option value="css">CSS</option>
+                      </select>
+                    </div>
+
                     <div>
                       <Label htmlFor={`codeSections.${index}.code`}>Code</Label>
                       <Controller
                         name={`codeSections.${index}.code` as const}
                         control={control}
                         rules={{ required: "Code is required" }}
-                        render={({ field }) => <QuillEditor onChange={field.onChange} value={field.value} />}
+                        render={({ field }) => <QuillEditor onChange={field.onChange} value={field.value || ""} />}
                       />
                     </div>
-
-                    {/* Before the change */}
 
                     <Button type="button" onClick={() => remove(index)} variant="destructive">
                       Remove Code Section
                     </Button>
                   </div>
                 ))}
-                <Button type="button" onClick={() => append({ title: "", location: "", code: "" })}>
+                <Button type="button" onClick={() => append({ title: "", location: "", code: "", language: "react" })}>
                   Add Code Section
                 </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="Preview Image">
+               {/* Hidden input */}
+               <Input
+                   type="hidden"
+                   {...register("previewTab")}
+                  />
               <div className="space-y-2">
                 <Label htmlFor="preview" className="text-black font-semibold">
                   Preview Image
@@ -235,27 +385,36 @@ export default function NewTopicForm() {
             >
               Previous
             </Button>
-            {activeStep < steps.length - 1 ? (
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault()
-                  setActiveStep((prev) => Math.min(steps.length - 1, prev + 1))
-                }}
-              >
+
+            {activeStep === 0 ? (
+              // On Form Options step, show Next
+              <Button type="button" onClick={() => setActiveStep(1)} disabled={selectedSections.length === 0}>
                 Next
               </Button>
             ) : (
-              <Button type="button" onClick={handleSubmit(onSubmit)} disabled={loading}>
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
-                    Creating Topic...
-                  </div>
-                ) : (
-                  "Create Topic"
+              // On other steps, show Next and/or Submit based on conditions
+              <div className="flex gap-2">
+                {/* Show Next button if not on last step */}
+                {activeStep < getVisibleSteps().length - 1 && (
+                  <Button type="button" onClick={() => setActiveStep((prev) => prev + 1)}>
+                    Next
+                  </Button>
                 )}
-              </Button>
+
+                {/* Show Submit button based on conditions */}
+                {shouldShowSubmit() && (
+                  <Button type="submit" disabled={loading} variant="default">
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
+                        Creating Topic...
+                      </div>
+                    ) : (
+                      "Create Topic"
+                    )}
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </form>
