@@ -46,11 +46,7 @@ export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
       </div>
     )
   }
-  function htmlToPlainText(html: string): string {
-    const tempDiv = document.createElement("div")
-    tempDiv.innerHTML = html
-    return tempDiv.textContent || tempDiv.innerText || ""
-  }
+  
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -117,7 +113,7 @@ export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
                     </Button>
             
                     <CodeEditor
-                      code={htmlToPlainText(section.code)} 
+                      code={(section.code)} 
                       language={section.language}
                       readOnly
                     />
