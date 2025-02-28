@@ -56,10 +56,10 @@ const QuillEditor = ({ onChange, value }: { onChange: (value: string) => void; v
   }, [quill, onChange])
 
   useEffect(() => {
-    if (quill && value && !quill.root.innerHTML) {
+    if (quill && value && quill.root.innerHTML !== value) {
       quill.root.innerHTML = value
     }
-  }, [quill, value])
+  }, [quill, value])  // Re-run the effect when the explanation value changes
 
   return <div ref={quillRef} />
 }
@@ -69,20 +69,26 @@ export default function NewTopicForm() {
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("/empty.png")
   const [selectedSections, setSelectedSections] = useState<string[]>(["all"])
+  const [explanation, setExplanation] = useState<string>("") // Store explanation persistently
   const router = useRouter()
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<TopicFormData>({
     defaultValues: {
+      explanation: "", // Set initial explanation
       codeSections: [{ title: "", location: "", code: "", language: "react" }],
       explanationTab: "explanationTab",
       previewTab: "previewTab",
     },
   })
+
+  
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -120,6 +126,10 @@ export default function NewTopicForm() {
 
   // Simplified helper to check if we can submit
   const canSubmit = () => true
+
+  useEffect(() => {
+    setValue("explanation", explanation) // Sync explanation with form
+  }, [explanation, setValue])
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-xl bg-white">
@@ -159,8 +169,8 @@ export default function NewTopicForm() {
                     name="explanation"
                     control={control}
                     rules={{ required: "Explanation is required" }}
-                    render={({ field }) => <QuillEditor onChange={field.onChange} value={field.value || ""} />}
-                  />
+                    render={({ field }) => <QuillEditor  onChange={(val) => { setExplanation(val); field.onChange(val) }} value={field.value || explanation} />}
+                    />
                   {errors.explanation && <p className="text-red-500">{errors.explanation.message}</p>}
                 </div>
               </div>
