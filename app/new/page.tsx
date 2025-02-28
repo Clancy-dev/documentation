@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function page() {
   return (
-    <div>
+    <div className="w-full min-h-screen flex items-center justify-center">
       <NewTopicForm/>
     </div>
   )

@@ -39,6 +39,7 @@ export default function CodeEditor({ code: initialCode, language, onChange, read
   return (
     <div className="border rounded-md overflow-hidden">
 
+  
       <Editor
         value={code}
         onValueChange={handleChange}
@@ -47,6 +48,9 @@ export default function CodeEditor({ code: initialCode, language, onChange, read
         style={{
           fontFamily: '"Fira code", "Fira Mono", monospace',
           fontSize: 14,
+          whiteSpace: "pre-wrap", // Preserve formatting
+          wordBreak: "break-word", // Prevent overflow issues
+          overflowWrap: "break-word", // Ensure long lines wrap
         }}
         textareaClassName={readOnly ? 'focus:outline-none cursor-default' : 'focus:outline-none'}
         readOnly={readOnly}
