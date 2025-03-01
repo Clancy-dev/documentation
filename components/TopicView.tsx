@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import CodeEditor from '@/components/CodeEditor'
-import { Copy, Check, Folder, File } from 'lucide-react'
+import { Copy, Check, Folder, File, Pencil, Trash } from 'lucide-react'
 import { CodeSection, Topic } from '@prisma/client'
 import { StdioNull } from 'child_process'
 import Link from 'next/link'
@@ -54,13 +54,12 @@ export default function TopicView({ topic, onDelete }: TopicViewProps) {
         <h2 className="text-3xl font-bold">{topic.title}</h2>
         <div className="flex space-x-2">
           <Link href={`/edit/${topic.slug}`}>
-          <Button variant="outline" size="sm">
-            Edit
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+           <Pencil className="w-4 h-4" /> Edit
           </Button>
-          </Link>
-          
-          <Button variant="outline" size="sm" onClick={() => onDelete(topic.id)}>
-            Delete
+          </Link>          
+          <Button variant="outline" size="sm" onClick={() => onDelete(topic.id)} className="flex items-center gap-2">
+          <Trash className="w-4 h-4" /> Delete
           </Button>
         </div>
       </div>
