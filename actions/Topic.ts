@@ -109,7 +109,7 @@ export async function fetchTopics(){
             },
         });
 
-        revalidatePath("/docs");
+        revalidatePath("/");
 
         return updatedTopic; 
     } catch (error) {
