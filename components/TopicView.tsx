@@ -75,6 +75,7 @@ export default function TopicView({ topic }: TopicViewProps) {
           <Button variant="outline" size="sm" onClick={() => handleDelete(topic.id)} className="flex items-center gap-2">
           <Trash className="w-4 h-4" /> Delete
           </Button>
+          {/* s */}
         </div>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
