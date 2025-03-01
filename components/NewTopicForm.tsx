@@ -120,7 +120,7 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
               image: data.image,
               explanationTab: data.explanationTab,
               previewTab: data.previewTab,
-              codeSections: data.codeSections, 
+              codeSections: [...data.codeSections], // Ensure previous data persists 
           }, id as string);
           toast.success("Updated Successfully!"); 
           router.push("/docs");
@@ -169,6 +169,11 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
       } else if ('code' in oldData && 'location' in oldData) {
         // If oldData is a CodeSection, set only the relevant fields
         // e.g., set codeSection-specific data here if necessary
+      }
+
+      if ("codeSections" in oldData && Array.isArray(oldData.codeSections)) {
+        // Ensure codeSections exist before setting them
+        setValue("codeSections", oldData.codeSections);
       }
     }
   }, [oldData, setValue]);

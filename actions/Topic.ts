@@ -74,6 +74,7 @@ export async function fetchTopics(){
      console.log(error) 
     }
   }
+
   export async function updateTopic(data: TopicFormData, id: string) {
     try {
         const updatedTopic = await db.topic.update({
@@ -86,30 +87,32 @@ export async function fetchTopics(){
                 explanationTab: data.explanationTab,
                 previewTab: data.previewTab,
 
+                // Remove all existing code sections
                 codeSections: {
-                    updateMany: data.codeSections.map((section) => ({
-                        where: { topicId:id},
-                        data: {
-                            title: section.title,
-                            code: section.code,
-                            language: section.language,
-                            location: section.location
-                        },
-                    })),
-                },
-            },
-            include: {
-                codeSections: true, // Ensures we return the updated topic with its code sections
-            },
+                    deleteMany: { topicId: id }
+                }
+            }
+        });
+
+        // Recreate all code sections
+        await db.codeSection.createMany({
+            data: data.codeSections.map(section => ({
+                title: section.title,
+                code: section.code,
+                language: section.language,
+                location: section.location,
+                topicId: id
+            }))
         });
 
         revalidatePath("/");
 
-        return updatedTopic; 
+        return updatedTopic;
     } catch (error) {
         console.error("Update Error:", error);
         throw new Error("Failed to update topic");
     }
 }
+
 
 
