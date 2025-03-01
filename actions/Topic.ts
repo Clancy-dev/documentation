@@ -64,7 +64,10 @@ export async function fetchTopics(){
     const singleTopic = await db.topic.findUnique({
       where:{
         slug
-      }
+      },
+      include: {
+        codeSections: true, // Include related codeSections
+      },
     }) 
     return singleTopic 
     } catch (error) {

@@ -79,13 +79,17 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<TopicFormData>({
     defaultValues: {
-      explanation: "", // Set initial explanation
-      codeSections: [{ title: "", location: "", code: "", language: "react" }],
-      explanationTab: "explanationTab",
-      previewTab: "previewTab",
+    title: "",
+    explanation: "",
+    slug: "",
+    explanationTab: "explanationTab",
+    previewTab: "previewTab",
+    image: "/empty.png",
+    codeSections: [{ title: "", location: "", code: "", language: "react" }],
       ...(oldData) // Merge oldData if available
     },
   })
