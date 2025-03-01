@@ -122,10 +122,11 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
               previewTab: data.previewTab,
               codeSections: [...data.codeSections], // Ensure previous data persists 
           }, id as string);
-          toast.success("Updated Successfully!"); 
-          router.push("/docs");
+          router.push("/");
           router.refresh();  
           console.log("Updated Topic:", updatedTopic); 
+          toast.success("Updated Successfully!"); 
+          return
   
       } catch (error) {
           console.error(error);
@@ -141,9 +142,10 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
       setLoading(true)
       await createNewTopic(data)
       console.log(data)
-      toast.success("Topic created successfully.")
       router.push("/") // Redirect to home page
       revalidatePath("/")
+      toast.success("Topic created successfully.")
+      return
     } catch (error) {
       toast.error("Failed to create the topic.")
       console.error(error)
@@ -336,7 +338,7 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
-                    {oldData ? "Updating Concept..." : "Creating Concept..."}
+                    {oldData ? "Updating Concept..." : "Creating Topic..."}
                   </div>
                 ) : (
                   oldData ? "Update Concept" : "Create Concept"

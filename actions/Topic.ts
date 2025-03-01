@@ -118,12 +118,16 @@ export async function fetchTopics(){
 
 export async function deleteTopic(id: string) {
   try {
-    const deletedTopic = await db.topic.delete({
-      where: {
-        id,
-      },
+    // First, delete all related code sections
+    await db.codeSection.deleteMany({
+      where: { topicId: id }
     });
-    
+
+    // Now, delete the topic itself
+    const deletedTopic = await db.topic.delete({
+      where: { id },
+    });
+
     revalidatePath("/");
     return { ok: true, deletedTopic };
   } catch (error) {
@@ -131,3 +135,4 @@ export async function deleteTopic(id: string) {
     return { ok: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
+

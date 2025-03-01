@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { deleteTopic } from '@/actions/Topic'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import DeleteButton from './DeleteButton'
 
 
 interface TopicViewProps {
@@ -48,18 +49,9 @@ export default function TopicView({ topic }: TopicViewProps) {
       </div>
     )
   }
-  const router = useRouter()
+  
 
-  async function handleDelete(id: string) {
-    try {
-      await deleteTopic(id)
-      toast.success("Concept Successfully Deleted")
-      router.refresh()
-    } catch (error) {
-      console.log(error)
-      toast.error("Failed to Delete the Concept")
-    }
-  }
+ 
   
 
   return (
@@ -72,10 +64,7 @@ export default function TopicView({ topic }: TopicViewProps) {
            <Pencil className="w-4 h-4" /> Edit
           </Button>
           </Link>          
-          <Button variant="outline" size="sm" onClick={() => handleDelete(topic.id)} className="flex items-center gap-2">
-          <Trash className="w-4 h-4" /> Delete
-          </Button>
-          {/* s */}
+         <DeleteButton topic={topic}/>
         </div>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
