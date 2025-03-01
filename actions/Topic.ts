@@ -116,3 +116,18 @@ export async function fetchTopics(){
 
 
 
+export async function deleteTopic(id: string) {
+  try {
+    const deletedTopic = await db.topic.delete({
+      where: {
+        id,
+      },
+    });
+    
+    revalidatePath("/");
+    return { ok: true, deletedTopic };
+  } catch (error) {
+    console.error("Error deleting topic:", error);
+    return { ok: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}

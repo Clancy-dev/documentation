@@ -9,6 +9,9 @@ import { Copy, Check, Folder, File, Pencil, Trash } from 'lucide-react'
 import { CodeSection, Topic } from '@prisma/client'
 import { StdioNull } from 'child_process'
 import Link from 'next/link'
+import { deleteTopic } from '@/actions/Topic'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 
 interface TopicViewProps {
@@ -46,6 +49,18 @@ export default function TopicView({ topic, onDelete }: TopicViewProps) {
       </div>
     )
   }
+  const router = useRouter()
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteTopic(id)
+      toast.success("Concept Successfully Deleted")
+      router.refresh()
+    } catch (error) {
+      console.log(error)
+      toast.error("Failed to Delete the Concept")
+    }
+  }
   
 
   return (
@@ -58,7 +73,7 @@ export default function TopicView({ topic, onDelete }: TopicViewProps) {
            <Pencil className="w-4 h-4" /> Edit
           </Button>
           </Link>          
-          <Button variant="outline" size="sm" onClick={() => onDelete(topic.id)} className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => handleDelete} className="flex items-center gap-2">
           <Trash className="w-4 h-4" /> Delete
           </Button>
         </div>
