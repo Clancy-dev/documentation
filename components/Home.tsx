@@ -58,7 +58,6 @@ export default function Home({topicz}:HomePageProps) {
             {selectedTopic ? (
     <TopicView 
       topic={selectedTopic as Topic & { codeSections: CodeSection[] }} 
-      onDelete={handleDelete}
     />
   ) : (
     <div><EmptyState/></div> // Optionally show a placeholder if no topic is selected

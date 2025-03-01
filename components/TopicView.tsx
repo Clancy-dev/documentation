@@ -16,10 +16,9 @@ import { useRouter } from 'next/navigation'
 
 interface TopicViewProps {
   topic: Topic & { codeSections: CodeSection[] } 
-  onDelete: (topicId: string) => void
 }
 
-export default function TopicView({ topic, onDelete }: TopicViewProps) {
+export default function TopicView({ topic }: TopicViewProps) {
   const [activeTab, setActiveTab] = useState('previewTab')
   const [activeCodeSection, setActiveCodeSection] = useState(topic.codeSections[0]?.title || '')
   const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({})
@@ -73,7 +72,7 @@ export default function TopicView({ topic, onDelete }: TopicViewProps) {
            <Pencil className="w-4 h-4" /> Edit
           </Button>
           </Link>          
-          <Button variant="outline" size="sm" onClick={() => handleDelete} className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => handleDelete(topic.id)} className="flex items-center gap-2">
           <Trash className="w-4 h-4" /> Delete
           </Button>
         </div>
