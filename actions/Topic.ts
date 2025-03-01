@@ -87,8 +87,8 @@ export async function fetchTopics(){
                 previewTab: data.previewTab,
 
                 codeSections: {
-                    update: data.codeSections.map((section) => ({
-                        where: { id },
+                    updateMany: data.codeSections.map((section) => ({
+                        where: { topicId:id},
                         data: {
                             title: section.title,
                             code: section.code,
