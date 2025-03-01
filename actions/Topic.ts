@@ -89,11 +89,12 @@ export async function fetchTopics(){
 
                 codeSections: {
                     updateMany: data.codeSections.map((section) => ({
-                        where: { location: section.location }, // Ensure location is unique
+                        where: { id },
                         data: {
                             title: section.title,
                             code: section.code,
                             language: section.language,
+                            location: section.location
                         },
                     })),
                    
