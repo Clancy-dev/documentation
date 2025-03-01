@@ -86,7 +86,7 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
       codeSections: [{ title: "", location: "", code: "", language: "react" }],
       explanationTab: "explanationTab",
       previewTab: "previewTab",
-      ...(oldData || {}) // Merge oldData if available
+      ...(oldData) // Merge oldData if available
     },
   })
 
