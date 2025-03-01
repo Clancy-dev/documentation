@@ -74,7 +74,6 @@ export async function fetchTopics(){
      console.log(error) 
     }
   }
-
   export async function updateTopic(data: TopicFormData, id: string) {
     try {
         const updatedTopic = await db.topic.update({
@@ -88,7 +87,7 @@ export async function fetchTopics(){
                 previewTab: data.previewTab,
 
                 codeSections: {
-                    updateMany: data.codeSections.map((section) => ({
+                    update: data.codeSections.map((section) => ({
                         where: { id },
                         data: {
                             title: section.title,
@@ -97,7 +96,6 @@ export async function fetchTopics(){
                             location: section.location
                         },
                     })),
-                   
                 },
             },
             include: {
@@ -113,4 +111,5 @@ export async function fetchTopics(){
         throw new Error("Failed to update topic");
     }
 }
+
 
