@@ -328,15 +328,15 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
               {/* Show Submit button on last step */}
               {activeStep === steps.length - 1 && (
                 <Button type="submit" disabled={loading} variant="default">
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
-                      Creating Topic...
-                    </div>
-                  ) : (
-                    "Create Topic"
-                  )}
-                </Button>
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
+                    {oldData ? "Updating Topic..." : "Creating Topic..."}
+                  </div>
+                ) : (
+                  oldData ? "Update Topic" : "Create Topic"
+                )}
+              </Button>   
               )}
             </div>
           </div>
