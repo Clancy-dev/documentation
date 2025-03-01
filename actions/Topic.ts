@@ -96,12 +96,7 @@ export async function fetchTopics(){
                             language: section.language,
                         },
                     })),
-                    create: data.codeSections.map((section) => ({
-                        title: section.title,
-                        location: section.location,
-                        code: section.code,
-                        language: section.language,
-                    })),
+                   
                 },
             },
             include: {
