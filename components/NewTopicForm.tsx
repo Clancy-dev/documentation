@@ -15,7 +15,8 @@ import { UploadButton } from "@/utils/uploadthing"
 import toast from "react-hot-toast"
 import FilePathInput from "./FileInputPath"
 import { revalidatePath } from "next/cache"
-import { createNewTopic } from "@/actions/Topic"
+import { createNewTopic, updateTopic } from "@/actions/Topic"
+import { CodeSection, Topic } from "@prisma/client"
 
 export type TopicFormData = {
   title: string
@@ -64,7 +65,7 @@ const QuillEditor = ({ onChange, value }: { onChange: (value: string) => void; v
   return <div ref={quillRef} />
 }
 
-export default function NewTopicForm() {
+export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| null}) {
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState("/empty.png")
@@ -102,11 +103,38 @@ export default function NewTopicForm() {
   const onSubmit = async (data: TopicFormData) => {
     data.slug = data.title.toLowerCase().split(" ").join("-")
     data.image = imageUrl
+    const id = oldData?.id
+    //update
+    if (oldData) {
+      try {
+          setLoading(true);
+          const updatedTopic = await updateTopic({
+              title: data.title,
+              explanation: data.explanation, 
+              slug: data.slug,
+              image: data.image,
+              explanationTab: data.explanationTab,
+              previewTab: data.previewTab,
+              codeSections: data.codeSections, 
+          }, id as string);
+          toast.success("Updated Successfully!"); 
+          router.push("/docs");
+          router.refresh();  
+          console.log("Updated Topic:", updatedTopic); 
+  
+      } catch (error) {
+          console.error(error);
+          toast.error("Failed to update.");
+      } finally {
+          setLoading(false);
+      }
+  }
+  
 
+    //create
     try {
       setLoading(true)
       await createNewTopic(data)
-      // Here you would typically send the data to your backend
       console.log(data)
       toast.success("Topic created successfully.")
       router.push("/") // Redirect to home page

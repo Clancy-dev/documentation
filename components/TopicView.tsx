@@ -8,15 +8,15 @@ import CodeEditor from '@/components/CodeEditor'
 import { Copy, Check, Folder, File } from 'lucide-react'
 import { CodeSection, Topic } from '@prisma/client'
 import { StdioNull } from 'child_process'
+import Link from 'next/link'
 
 
 interface TopicViewProps {
   topic: Topic & { codeSections: CodeSection[] } 
-  onEdit: (topic: Topic) => void
   onDelete: (topicId: string) => void
 }
 
-export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
+export default function TopicView({ topic, onDelete }: TopicViewProps) {
   const [activeTab, setActiveTab] = useState('previewTab')
   const [activeCodeSection, setActiveCodeSection] = useState(topic.codeSections[0]?.title || '')
   const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({})
@@ -53,9 +53,12 @@ export default function TopicView({ topic, onEdit, onDelete }: TopicViewProps) {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">{topic.title}</h2>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={() => onEdit(topic)}>
+          <Link href={`/edit/${topic.slug}`}>
+          <Button variant="outline" size="sm">
             Edit
           </Button>
+          </Link>
+          
           <Button variant="outline" size="sm" onClick={() => onDelete(topic.id)}>
             Delete
           </Button>

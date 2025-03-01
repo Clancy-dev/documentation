@@ -57,3 +57,61 @@ export async function fetchTopics(){
       
     }
   }
+
+
+  export async function fetchSingleTopic(slug:string){
+    try {
+    const singleTopic = await db.topic.findUnique({
+      where:{
+        slug
+      }
+    }) 
+    return singleTopic 
+    } catch (error) {
+     console.log(error) 
+    }
+  }
+
+  export async function updateTopic(data: TopicFormData, id: string) {
+    try {
+        const updatedTopic = await db.topic.update({
+            where: { id },
+            data: {
+                title: data.title,
+                explanation: data.explanation,
+                slug: data.slug,
+                image: data.image,
+                explanationTab: data.explanationTab,
+                previewTab: data.previewTab,
+
+                codeSections: {
+                    updateMany: data.codeSections.map((section) => ({
+                        where: { location: section.location }, // Ensure location is unique
+                        data: {
+                            title: section.title,
+                            code: section.code,
+                            language: section.language,
+                        },
+                    })),
+                    create: data.codeSections.map((section) => ({
+                        title: section.title,
+                        location: section.location,
+                        code: section.code,
+                        language: section.language,
+                    })),
+                },
+            },
+            include: {
+                codeSections: true, // Ensures we return the updated topic with its code sections
+            },
+        });
+
+        revalidatePath("/docs");
+
+        return updatedTopic; 
+    } catch (error) {
+        console.error("Update Error:", error);
+        throw new Error("Failed to update topic");
+    }
+}
+

@@ -31,9 +31,6 @@ export default function Home({topicz}:HomePageProps) {
       )
     );
   
-    const handleEdit = (topic: Topic) => {
-      console.log('Edit topic:', topic);
-    };
   
     const handleDelete = (topicId: string) => {
       console.log('Delete topic:', topicId);
@@ -61,7 +58,6 @@ export default function Home({topicz}:HomePageProps) {
             {selectedTopic ? (
     <TopicView 
       topic={selectedTopic as Topic & { codeSections: CodeSection[] }} 
-      onEdit={handleEdit}
       onDelete={handleDelete}
     />
   ) : (
