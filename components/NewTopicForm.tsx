@@ -159,10 +159,20 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
 
   // Simplified helper to check if we can submit
   const canSubmit = () => true
-
   useEffect(() => {
-    setValue("explanation", explanation) // Sync explanation with form
-  }, [explanation, setValue])
+    if (oldData) {
+      if ('explanation' in oldData && 'image' in oldData) {
+        // If oldData is a Topic
+        setValue("explanation", oldData.explanation); // Set explanation
+        setValue("image", oldData.image || "/empty.png"); // Set image URL
+        setImageUrl(oldData.image || "/empty.png"); // Set imageUrl state
+      } else if ('code' in oldData && 'location' in oldData) {
+        // If oldData is a CodeSection, set only the relevant fields
+        // e.g., set codeSection-specific data here if necessary
+      }
+    }
+  }, [oldData, setValue]);
+  
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-xl bg-white">
