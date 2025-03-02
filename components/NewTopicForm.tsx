@@ -124,7 +124,7 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
           router.push("/");
           router.refresh();  
           console.log("Updated Topic:", updatedTopic); 
-          toast.success("Updated Successfully!"); 
+          toast.success("Concept updated Successfully!"); 
           return
   
       } catch (error) {
@@ -336,7 +336,7 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin" />
-                    {oldData ? "Updating Concept..." : "Creating Topic..."}
+                    {oldData ? "Updating Concept..." : "Creating Concept..."}
                   </div>
                 ) : (
                   oldData ? "Update Concept" : "Create Concept"
