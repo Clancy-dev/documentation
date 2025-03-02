@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UploadButton } from "@/utils/uploadthing"
 import toast from "react-hot-toast"
 import FilePathInput from "./FileInputPath"
-import { revalidatePath } from "next/cache"
 import { createNewTopic, updateTopic } from "@/actions/Topic"
 import { CodeSection, Topic } from "@prisma/client"
 
@@ -140,15 +139,14 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
     //create
     try {
       setLoading(true)
-      await createNewTopic(data)
-      console.log(data)
-      router.push("/") // Redirect to home page
-      revalidatePath("/")
-      toast.success("Topic created successfully.")
-      return
+      await createNewTopic(data);
+      console.log(data);
+      router.push("/");
+      toast.success("Topic created successfully.");
+      return; 
     } catch (error) {
-      toast.error("Failed to create the topic.")
       console.error(error)
+      toast.error("Failed to create the topic.");
     } finally {
       setLoading(false)
     }
