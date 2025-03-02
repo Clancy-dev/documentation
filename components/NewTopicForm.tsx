@@ -142,11 +142,11 @@ export default function NewTopicForm({oldData}:{oldData?:Topic| CodeSection| nul
       await createNewTopic(data);
       console.log(data);
       router.push("/");
-      toast.success("Topic created successfully.");
+      toast.success("Concept created successfully.");
       return; 
     } catch (error) {
       console.error(error)
-      toast.error("Failed to create the topic.");
+      toast.error("Failed to create the concept.");
     } finally {
       setLoading(false)
     }
